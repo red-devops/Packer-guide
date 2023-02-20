@@ -1,0 +1,58 @@
+---
+- name: GitHub self-hosted runner builder
+  hosts: all
+  vars:
+    - gh_runner_config_token: ''
+    
+  pre_tasks:
+    - name: Update_cache
+      become: true
+      ansible.builtin.apt:
+        update_cache: yes
+        
+  roles:
+
+    - role: geerlingguy.pip
+      become: true
+
+    - role: geerlingguy.nodejs
+      become: true
+
+    - role: geerlingguy.ansible
+      become: true
+    
+    - role: geerlingguy.docker
+      become: true
+      vars:
+        docker_users:
+          - ubuntu
+      
+    - role: geerlingguy.packer
+      become: true
+      vars:
+        packer_version: 1.8.5
+
+    - role: diodonfrost.terraform
+      become: true
+      vars:
+        terraform_version: 1.2.8
+
+    - role: macunha1.github_actions_runner
+      vars:
+        gh_runner_config_name: AWS-self-hosted-runner
+        gh_runner_config_url: https://github.com/red-devops
+        gh_runner_config_token: "{{ gh_runner_config_token }}"
+        gh_runner_version: 2.302.1
+        gh_runner_config_labels:
+          - self-hosted
+          - ubuntu
+          - AWS
+
+  tasks:
+    - name: Install AWS CLI 
+      shell: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+
+  

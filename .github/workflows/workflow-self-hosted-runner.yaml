@@ -1,0 +1,40 @@
+name: GitHub self-hosted runner builder
+on:
+  workflow_dispatch:
+    inputs:
+      runner_register_token:
+        description: 'Token for register new GitHub self-hosted runner'
+        required: true 
+        type: string
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: eu-central-1
+
+jobs:
+  Build-AWS-self-hosted-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup packer
+        uses: hashicorp/setup-packer@v2.0.0
+        with:
+          version: "1.8.3"
+
+      - name: Packer init
+        run: packer init ./packer-self-hosted-runner.pkr.hcl
+
+      - name: Packer fmt
+        run: packer fmt -check ./packer-self-hosted-runner.pkr.hcl
+
+      - name: Packer validate
+        run: packer validate -var "gh_runner_config_token=${{ inputs.runner_register_token }}" ./packer-self-hosted-runner.pkr.hcl
+
+      - name: Packer build
+        run: packer build -var "gh_runner_config_token=${{ inputs.runner_register_token }}" ./packer-self-hosted-runner.pkr.hcl
+
+      - name: Print manifest
+        run: cat manifest.json
