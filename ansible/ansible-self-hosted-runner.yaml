@@ -60,7 +60,8 @@
         pip3 install boto3 botocore
         
     - name: Install extra lib
-      shell: |
-        apt install jq
+      become: true
+      ansible.builtin.apt:
+        name: jq
 
   
