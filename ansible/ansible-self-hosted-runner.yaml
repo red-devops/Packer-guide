@@ -3,6 +3,7 @@
   hosts: all
   vars:
     - gh_runner_config_token: ''
+    - gh_runner_env_label: ''
     
   pre_tasks:
     - name: Update_cache
@@ -39,14 +40,13 @@
 
     - role: macunha1.github_actions_runner
       vars:
-        gh_runner_config_name: AWS-self-hosted-runner
+        gh_runner_config_name: AWS-self-hosted-runner-{{ gh_runner_env_label }}
         gh_runner_config_url: https://github.com/red-devops
         gh_runner_config_token: "{{ gh_runner_config_token }}"
         gh_runner_version: 2.302.1
         gh_runner_config_labels:
           - self-hosted
-          - ubuntu
-          - AWS
+          - "{{ gh_runner_env_label }}"
 
   tasks:
     - name: Install AWS CLI 

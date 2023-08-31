@@ -8,13 +8,17 @@ variable "gh_runner_config_token" {
   sensitive = true
 }
 
+variable "gh_runner_env_label" {
+  type = string
+}
+
 locals {
   timestamp = formatdate("YYYYMMDD", timestamp())
 }
 
 source "amazon-ebs" "ubuntu" {
-  ami_name      = "GitHub-self-hosted-runner-${local.timestamp}"
-  instance_type = "t2.micro"
+  ami_name      = "GitHub-self-hosted-runner-${var.gh_runner_env_label}-${local.timestamp}"
+  instance_type = "t3.micro"
   region        = "eu-central-1"
   ssh_username  = var.ssh_user
   source_ami_filter {
@@ -38,7 +42,7 @@ build {
     use_proxy     = false
     extra_arguments = [
       "--extra-vars",
-      "gh_runner_config_token=${var.gh_runner_config_token}",
+      "gh_runner_config_token=${var.gh_runner_config_token} gh_runner_env_label=${var.gh_runner_env_label}"
     ]
   }
 

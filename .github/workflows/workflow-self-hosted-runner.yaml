@@ -6,6 +6,10 @@ on:
         description: 'Token for register new GitHub self-hosted runner'
         required: true 
         type: string
+      runner_env_label:
+        description: 'Environment label for new GitHub self-hosted runner'
+        required: true 
+        type: string
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -31,10 +35,10 @@ jobs:
         run: packer fmt -check ./packer-self-hosted-runner.pkr.hcl
 
       - name: Packer validate
-        run: packer validate -var "gh_runner_config_token=${{ inputs.runner_register_token }}" ./packer-self-hosted-runner.pkr.hcl
+        run: packer validate -var "gh_runner_config_token=${{ inputs.runner_register_token }}" -var "gh_runner_env_label=${{ inputs.runner_env_label }}" ./packer-self-hosted-runner.pkr.hcl
 
       - name: Packer build
-        run: packer build -var "gh_runner_config_token=${{ inputs.runner_register_token }}" ./packer-self-hosted-runner.pkr.hcl
+        run: packer build -var "gh_runner_config_token=${{ inputs.runner_register_token }}" -var "gh_runner_env_label=${{ inputs.runner_env_label }}" ./packer-self-hosted-runner.pkr.hcl
 
       - name: Print manifest
         run: cat manifest.json
