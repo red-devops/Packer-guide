@@ -61,7 +61,33 @@
         
     - name: Install extra lib
       become: true
-      ansible.builtin.apt:
-        name: jq
-
+      apt:
+        name: "{{ item }}"
+      loop: 
+        - jq
+        - zip
+    
+    - name: Create directories
+      become: true
+      file:
+        dest: "/home/ubuntu/bin"
+        state: directory
+        owner: "ubuntu"
+        group: "ubuntu"
+        mode: "u+rwx,g+r,o+r"
+    
+    - name: HashiCorp Tools
+      unarchive:
+        src: "{{ item }}"
+        dest: "/home/ubuntu/bin"
+        remote_src: yes
+        owner: "ubuntu"
+        group: "ubuntu"
+      with_items:
+        - "https://releases.hashicorp.com/packer/1.9.2/packer_1.9.2_linux_amd64.zip"
+        - "https://releases.hashicorp.com/terraform/1.5.4/terraform_1.5.4_linux_amd64.zip"
+        - "https://releases.hashicorp.com/vault/1.14.1/vault_1.14.1_linux_amd64.zip"
+        - "https://releases.hashicorp.com/consul/1.16.0/consul_1.16.0_linux_amd64.zip"
+        - "https://releases.hashicorp.com/nomad/1.6.0/nomad_1.6.0_linux_amd64.zip"
+      
   
